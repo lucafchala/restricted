@@ -18,18 +18,12 @@ The leaderboard backend is a **Cloudflare Worker** with KV storage.
 
 ### First-time worker setup
 
-1. Create a KV namespace:
-   ```
-   wrangler kv namespace create LEADERBOARD
-   wrangler kv namespace create LEADERBOARD --preview
-   ```
-2. Copy the IDs printed by those commands into `wrangler.toml`, replacing the two `REPLACE_WITH_KV_NAMESPACE_ID` placeholders.
-3. Deploy:
+1. Deploy the worker (`wrangler.jsonc` and `src/index.ts` are already configured with the KV namespace ID):
    ```
    wrangler deploy
    ```
-4. The worker URL will be `https://ctf-leaderboard.YOUR_SUBDOMAIN.workers.dev`. If your subdomain differs from `lucafchala`, update the `WH` variable in `index.html` to match.
+2. The worker will be live at `https://ctf-leaderboard.lucafchala.workers.dev`. If your Cloudflare subdomain differs, update the `WH` variable in `index.html` to match.
 
 ### Subsequent deploys
 
-Any change to `worker.js` needs `wrangler deploy` to go live. Changes to `index.html` go live automatically via Cloudflare Pages on push to `main`.
+Any change to `src/index.ts` needs `wrangler deploy` to go live. Changes to `index.html` go live automatically via Cloudflare Pages on push to `main`.
