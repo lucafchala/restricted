@@ -7,20 +7,6 @@ Something is locked behind the page. Your objective is to get past the gate, ret
 The leaderboard is visible to everyone, including people who haven't solved it yet.
 
 Good luck.
-
----
-
-## Deployment
-
-The site is a single `index.html` deployed to **Cloudflare Pages** from this repo (no build step, output directory `/`). Custom domain: `restricted.lucafchala.com`.
-
-The leaderboard backend is a **Cloudflare Worker** with KV storage.
-
-### First-time worker setup
-
-1. Deploy the worker (`wrangler.jsonc` and `src/index.ts` are already configured with the KV namespace ID):
-   ```
-   wrangler deploy
    ```
 2. The worker will be live at `https://ctf-leaderboard.lucafchala.workers.dev`. If your Cloudflare subdomain differs, update the `WH` variable in `index.html` to match.
 
