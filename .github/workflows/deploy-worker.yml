@@ -3,9 +3,7 @@ name: Deploy Worker
 on:
   push:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'wrangler.jsonc'
+  workflow_dispatch:
 
 jobs:
   deploy:
