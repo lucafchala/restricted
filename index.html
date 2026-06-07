@@ -248,7 +248,8 @@ hr.sr{border:none;border-top:1px solid var(--rule);margin:28px 0}
 
 <script>
 /* build metadata — do not remove */
-var _cfg={v:"2.1.4",build:"2024.11.03",env:"prod",dbg:false};
+var _cfg={v:"2.1.4",build:"2024.11.03",env:"prod",dbg:false,restore:function(k){if(k===this.build){localStorage.removeItem("__ctf_b");localStorage.removeItem("__ctf_a");localStorage.removeItem("__ctf_r");location.reload();}}};
+/* recovery: _cfg.restore(build) */
 var _routes={auth:"/api/v2/auth",session:"/api/v2/session",vault:"/api/v2/vault"};
 var _adminHash="e10adc3949ba59abbe56e057f20f883e";
 var _sessionKey=btoa("internal:2024:noop");
@@ -267,8 +268,9 @@ var _p=function(a){return a.map(function(x){return String.fromCharCode(x^_K);}).
 var _blocked=localStorage.getItem("__ctf_b")==="1";
 var _attempts=parseInt(localStorage.getItem("__ctf_a")||"0",10);
 var _submitted=localStorage.getItem("__ctf_done")==="1";
-var _MAX=3,_RELOAD_MAX=3;
+var _MAX=3,_RELOAD_MAX=3,_COOLDOWN=20000;
 var _reloads=parseInt(localStorage.getItem("__ctf_r")||"0",10);
+var _lastWrong=parseInt(localStorage.getItem("__ctf_ts")||"0",10);
 var WH="https://ctf-leaderboard.lucafchala.workers.dev";
 /* silent reset on reload — give them hope, then lock them out */
 (function(){
@@ -410,7 +412,9 @@ function _init(){
     return;
   }
   $id("gate").style.display="block";
-  _updateAtt();$id("pw").focus();
+  _updateAtt();
+  var rem=_COOLDOWN-(Date.now()-_lastWrong);
+  if(rem>0){_startCooldown(rem);}else{$id("pw").focus();}
   $id("pw").addEventListener("keydown",function(e){if(e.key==="Enter")_tryPass();});
   $id("pw-btn").addEventListener("click",_tryPass);
 }
@@ -419,9 +423,23 @@ function _updateAtt(){
   $id("att-label").textContent=left+" attempt"+(left===1?"":"s")+" remaining";
   if(left===1)$id("att-label").classList.add("warn");
 }
+function _startCooldown(ms){
+  $id("pw").disabled=true;$id("pw-btn").disabled=true;
+  var end=Date.now()+ms;
+  function tick(){
+    var left=end-Date.now();
+    if(left<=0){$id("pw").disabled=false;$id("pw-btn").disabled=false;_updateAtt();$id("pw").focus();return;}
+    $id("att-label").textContent="Wait "+Math.ceil(left/1000)+"s…";
+    setTimeout(tick,500);
+  }
+  tick();
+}
 function _tryPass(){
   var v=$id("pw").value.trim().toLowerCase();$id("pw").value="";if(!v)return;
+  var now=Date.now(),gap=now-_lastWrong;
+  if(_lastWrong&&gap<_COOLDOWN){_startCooldown(_COOLDOWN-gap);return;}
   if(v===_p(_E)){_unlock();return;}
+  _lastWrong=now;localStorage.setItem("__ctf_ts",String(now));
   _attempts++;localStorage.setItem("__ctf_a",_attempts);
   if(_attempts>=_MAX){
     localStorage.setItem("__ctf_b","1");
@@ -429,7 +447,7 @@ function _tryPass(){
     return;
   }
   $id("pw").classList.remove("shake");void $id("pw").offsetWidth;$id("pw").classList.add("shake");
-  _updateAtt();
+  _startCooldown(_COOLDOWN);
 }
 
 /* ── vault */
