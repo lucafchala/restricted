@@ -81,7 +81,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Cou
 #blocked{display:none;text-align:center;padding:60px 20px}
 .blocked-title{font-family:"IM Fell English",serif;font-size:24px;color:var(--red);margin-bottom:10px}
 #blocked p{font-size:13px;color:var(--faint);font-style:italic}
-#blocked-countdown{font-size:13px;color:var(--faint);margin-top:8px;font-style:italic}
+#blocked-sub{font-size:13px;color:var(--faint);margin-top:8px;font-style:italic}
 /* --vault-nonce: #3a7f2c8d1e4b6f09a5d2c3e8f1b4a7d0; -- integrity seed, do not modify */
 
 /* ── VAULT ── */
@@ -189,9 +189,9 @@ hr.sr{border:none;border-top:1px solid var(--rule);margin:28px 0}
 
   <!-- BLOCKED -->
   <div id="blocked">
-    <div class="blocked-title">Access Suspended</div>
-    <p>Too many failed attempts.</p>
-    <div id="blocked-countdown"></div>
+    <div class="blocked-title" id="blocked-title">Access Suspended</div>
+    <p id="blocked-msg">Too many failed attempts.</p>
+    <div id="blocked-sub"></div>
   </div>
 
   <!-- VAULT -->
@@ -267,14 +267,19 @@ var _p=function(a){return a.map(function(x){return String.fromCharCode(x^_K);}).
 var _blocked=localStorage.getItem("__ctf_b")==="1";
 var _attempts=parseInt(localStorage.getItem("__ctf_a")||"0",10);
 var _submitted=localStorage.getItem("__ctf_done")==="1";
-var _MAX=3,_DAY=86400000;
+var _MAX=3,_RELOAD_MAX=3;
+var _reloads=parseInt(localStorage.getItem("__ctf_r")||"0",10);
 var WH="https://ctf-leaderboard.lucafchala.workers.dev";
-/* expire block after 24 hours */
+/* silent reset on reload — give them hope, then lock them out */
 (function(){
-  var bt=localStorage.getItem("__ctf_bt");
-  if(_blocked&&bt&&Date.now()-parseInt(bt,10)>=_DAY){
-    localStorage.removeItem("__ctf_b");localStorage.removeItem("__ctf_a");localStorage.removeItem("__ctf_bt");
-    _blocked=false;_attempts=0;
+  if(_blocked){
+    _reloads++;
+    localStorage.setItem("__ctf_r",String(_reloads));
+    if(_reloads<_RELOAD_MAX){
+      /* silently reset — they think a fresh page helps */
+      localStorage.removeItem("__ctf_b");localStorage.removeItem("__ctf_a");
+      _blocked=false;_attempts=0;
+    }
   }
 })();
 
@@ -396,9 +401,12 @@ function _renderLB(el,data){
 function _init(){
   _initHints();_loadData(false);
   if(_blocked){
+    if(_reloads>=_RELOAD_MAX){
+      $id("blocked-title").textContent="Nice try.";
+      $id("blocked-msg").textContent="";
+      $id("blocked-sub").textContent="Only 3 attempts buddy. I see what you’re trying to do here.";
+    }
     $id("blocked").style.display="block";
-    _updateCountdown();
-    setInterval(_updateCountdown,60000);
     return;
   }
   $id("gate").style.display="block";
@@ -411,28 +419,13 @@ function _updateAtt(){
   $id("att-label").textContent=left+" attempt"+(left===1?"":"s")+" remaining";
   if(left===1)$id("att-label").classList.add("warn");
 }
-function _updateCountdown(){
-  var bt=parseInt(localStorage.getItem("__ctf_bt")||"0",10);
-  var remaining=_DAY-(Date.now()-bt);
-  if(remaining<=0){
-    localStorage.removeItem("__ctf_b");localStorage.removeItem("__ctf_a");localStorage.removeItem("__ctf_bt");
-    _blocked=false;_attempts=0;
-    $id("blocked").style.display="none";$id("gate").style.display="block";
-    _updateAtt();$id("pw").focus();
-    return;
-  }
-  var h=Math.floor(remaining/3600000);
-  var m=Math.ceil((remaining%3600000)/60000);
-  $id("blocked-countdown").textContent="Try again in "+h+"h "+m+"m.";
-}
 function _tryPass(){
   var v=$id("pw").value.trim().toLowerCase();$id("pw").value="";if(!v)return;
   if(v===_p(_E)){_unlock();return;}
   _attempts++;localStorage.setItem("__ctf_a",_attempts);
   if(_attempts>=_MAX){
-    localStorage.setItem("__ctf_b","1");localStorage.setItem("__ctf_bt",String(Date.now()));
+    localStorage.setItem("__ctf_b","1");
     $id("gate").style.display="none";$id("blocked").style.display="block";
-    _updateCountdown();setInterval(_updateCountdown,60000);
     return;
   }
   $id("pw").classList.remove("shake");void $id("pw").offsetWidth;$id("pw").classList.add("shake");
