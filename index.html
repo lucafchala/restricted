@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>restricted.lucafchala.com</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="x-build-hash" content="5f4dcc3b5aa765d61d8327deb882cf92">
+<meta name="x-theme-id" content="ynzqon">
+<meta name="x-api-version" content="2.1.4">
+<meta name="x-session-salt" content="a3f8b2c1d9e4f7a0b5c6d3e2f1a8b9c0">
+<!--
+  [SYSTEM] fallback auth token (deprecated): bm90IHRoZSBwYXNzd29yZA==
+  /robots.txt may contain additional path directives
+  build: 2024.11.03-a
+  checksum: e10adc3949ba59abbe56e057f20f883e
+-->
+<!--
+  x-theme-id: standard substitution cipher, offset 13
+  retained for legacy compatibility
+-->
+<!--
+  note: code display refreshes on a 30s window aligned to Unix epoch
+  vault integrity verified against current window only
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f0e1;
+  --paper:#ede8d5;
+  --ink:#1a1612;
+  --mid:#5a5040;
+  --faint:#9a8e78;
+  --rule:#c8b89a;
+  --red:#8b1a1a;
+  --green:#1a4a1a;
+  --link:#00008b;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Courier Prime",monospace;font-size:15px;line-height:1.6}
+
+
+/* ── BANNER ── */
+#banner{background:var(--paper);border-bottom:2px solid var(--rule);padding:16px 20px 14px}
+#banner-inner{max-width:680px;margin:0 auto}
+#banner-title-row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:12px}
+#banner-title{font-family:"IM Fell English",serif;font-size:18px;color:var(--ink)}
+#banner-toggle{font-family:"Courier Prime",monospace;font-size:12px;color:var(--link);background:transparent;border:none;cursor:pointer;text-decoration:underline;padding:0}
+#banner-toggle:hover{color:var(--red)}
+#objective{font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:14px}
+#objective strong{font-weight:700}
+#hint-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+#hint-list{margin-bottom:6px}
+.hint-item{font-size:13px;color:var(--mid);padding:5px 0 5px 12px;border-left:2px solid var(--rule);margin-bottom:5px;font-style:italic;animation:fadein .4s ease both}
+@keyframes fadein{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+#hint-next{font-size:12px;color:var(--faint);font-style:italic}
+.no-hints{font-size:13px;color:var(--faint);font-style:italic}
+
+/* ── PAGE ── */
+#page{max-width:640px;margin:0 auto;padding:32px 20px 100px}
+
+/* ── GATE ── */
+#gate{display:none;text-align:center;padding:40px 0}
+.gate-title{font-family:"IM Fell English",serif;font-size:28px;color:var(--ink);margin-bottom:6px}
+.gate-rule{border:none;border-top:1px solid var(--rule);margin:14px auto;width:200px}
+#att-label{font-size:12px;color:var(--faint);margin-bottom:18px;letter-spacing:.05em}
+#att-label.warn{color:var(--red)}
+.gate-form{display:inline-flex;flex-direction:column;align-items:center;gap:10px}
+#pw{background:var(--bg);border:1px solid var(--rule);color:var(--ink);font-family:"Courier Prime",monospace;font-size:15px;text-align:center;width:220px;padding:7px 10px;outline:none;box-shadow:inset 1px 1px 3px rgba(0,0,0,.08)}
+#pw:focus{border-color:var(--mid)}
+#pw-btn{background:var(--paper);border:1px solid var(--rule);color:var(--ink);font-family:"Courier Prime",monospace;font-size:13px;letter-spacing:.08em;padding:5px 24px;cursor:pointer;transition:background .15s}
+#pw-btn:hover{background:var(--rule);border-color:var(--mid)}
+@keyframes sk{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.shake{animation:sk .28s ease}
+.page-note{font-size:12px;color:var(--mid);border:1px dashed var(--rule);padding:8px 12px;margin-top:20px;font-style:italic;text-align:left;line-height:1.7}
+.page-note code{font-family:"Courier Prime",monospace;font-size:12px;color:var(--ink);background:rgba(0,0,0,.05);padding:1px 4px}
+
+/* ── BLOCKED ── */
+#blocked{display:none;text-align:center;padding:60px 20px}
+.blocked-title{font-family:"IM Fell English",serif;font-size:24px;color:var(--red);margin-bottom:10px}
+#blocked p{font-size:13px;color:var(--faint);font-style:italic}
+
+/* ── VAULT ── */
+#vault{display:none}
+.vault-header{text-align:center;padding:32px 0 24px;border-bottom:1px solid var(--rule);margin-bottom:32px}
+.vault-header h1{font-family:"IM Fell English",serif;font-size:26px;color:var(--ink);margin-bottom:6px}
+.vault-header p{font-size:13px;color:var(--faint);font-style:italic}
+.vault-section{margin-bottom:32px}
+.vault-section h3{font-family:"IM Fell English",serif;font-size:16px;color:var(--mid);border-bottom:1px solid var(--rule);padding-bottom:5px;margin-bottom:14px}
+
+/* code display */
+#code-display{
+  font-family:"Courier Prime",monospace;
+  font-size:clamp(32px,7vw,52px);font-weight:700;
+  letter-spacing:.15em;color:var(--ink);line-height:1;margin-bottom:8px;
+  transition:opacity .15s;
+}
+#code-display.tick{opacity:.4}
+.code-sub{font-size:12px;color:var(--faint);font-style:italic;margin-bottom:6px}
+.bar-track{width:180px;height:2px;background:rgba(200,184,154,.3);border-radius:2px;overflow:hidden;margin-top:4px}
+#code-bar{height:100%;background:var(--rule);border-radius:2px;transition:width .9s linear}
+
+/* cmd-input — invisible until focused, no hint it exists */
+#cmd-input{
+  background:var(--bg);border:1px solid var(--bg);
+  color:var(--bg);font-family:inherit;font-size:13px;
+  padding:4px 0;outline:none;width:120px;
+  caret-color:var(--faint);
+  display:block;margin-top:2px;
+}
+#cmd-input:focus{border-color:var(--rule);color:var(--ink)}
+
+/* submit */
+#submit-wrap{display:none;margin-top:16px}
+.field-group{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.field-group input{background:var(--bg);border:1px solid var(--rule);color:var(--ink);font-family:"Courier Prime",monospace;font-size:14px;padding:7px 10px;outline:none;width:100%;max-width:280px;box-shadow:inset 1px 1px 3px rgba(0,0,0,.06)}
+.field-group input:focus{border-color:var(--mid)}
+.field-group input::placeholder{color:var(--faint)}
+#submit-btn{background:var(--paper);border:1px solid var(--rule);color:var(--ink);font-family:"Courier Prime",monospace;font-size:13px;padding:5px 22px;cursor:pointer;transition:background .15s}
+#submit-btn:hover:not(:disabled){background:var(--rule)}
+#submit-btn:disabled{opacity:.45;cursor:default}
+#submit-msg{font-size:12px;color:var(--red);margin-top:8px;font-style:italic;min-height:16px}
+.success-msg{font-size:13px;color:var(--green)}
+
+/* leaderboard */
+.lb-table{width:100%;border-collapse:collapse}
+.lb-table th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:400;text-align:left;padding:4px 8px 8px 0;border-bottom:1px solid var(--rule)}
+.lb-table td{font-size:13px;color:var(--ink);padding:8px 8px 8px 0;border-bottom:1px solid rgba(200,184,154,.2)}
+.lb-rank{color:var(--faint);width:32px}
+.lb-empty{font-size:13px;color:var(--faint);font-style:italic;padding:12px 0}
+hr.sr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+</style>
+</head>
+<body>
+
+<!-- honeypots -->
+<a href="/api/auth" data-trap="api-auth" style="position:absolute;left:-9999px" tabindex="-1">auth</a>
+<a href="/admin" data-trap="admin-path" style="position:absolute;left:-9999px" tabindex="-1">admin</a>
+
+<!-- BANNER -->
+<div id="banner">
+  <div id="banner-inner">
+    <div id="banner-title-row">
+      <span id="banner-title">The Challenge</span>
+      <button id="banner-toggle">[hide]</button>
+    </div>
+    <div id="banner-body">
+      <div id="objective">
+        Something is locked behind this page.<br>
+        <strong>Your objective:</strong> find the passphrase, get inside,
+        retrieve the correct access code, and claim your place on the leaderboard.<br><br>
+        Everything you need is already here &mdash; no guessing, no brute force.
+        Use your <em>3 attempts</em> at the gate wisely. It does not reopen.
+      </div>
+      <div style="margin-top:14px">
+        <div id="hint-label">Hints</div>
+        <div id="hint-list"><div class="no-hints">None unlocked yet &mdash; keep looking.</div></div>
+        <div id="hint-next"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div id="page">
+
+  <!-- GATE -->
+  <div id="gate">
+    <div class="gate-title">Restricted Access</div>
+    <hr class="gate-rule">
+    <div id="att-label">3 attempts remaining</div>
+    <div class="gate-form">
+      <input type="password" id="pw" placeholder="enter passphrase" autocomplete="off" spellcheck="false">
+      <button id="pw-btn">Enter</button>
+    </div>
+    <div class="page-note">
+      Site authentication key (legacy): <code>ynzqon</code><br>
+      Encoding: <code>ROT-13</code> &mdash; retained for compatibility. Do not share.
+    </div>
+  <div style="margin-top:36px;text-align:left">
+    <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#9a8e78;margin-bottom:10px;border-top:1px solid #c8b89a;padding-top:14px">Solvers</div>
+    <div id="gate-lb"><div style="font-size:13px;color:#9a8e78;font-style:italic">Loading&hellip;</div></div>
+  </div>
+  </div>
+
+  <!-- BLOCKED -->
+  <div id="blocked">
+    <div class="blocked-title">Access Permanently Revoked</div>
+    <p>This terminal session has been logged.</p>
+  </div>
+
+  <!-- VAULT -->
+  <div id="vault">
+    <div class="vault-header">
+      <h1>Access Granted</h1>
+      <!-- hint: the code you see is not necessarily the code you need -->
+      <p>The code rotates. Whether the current value is useful is another question.</p>
+    </div>
+
+    <div class="vault-section">
+      <h3>Access Code</h3>
+      <div id="code-display">------</div>
+      <div class="code-sub">Refreshes every 30 seconds.</div>
+      <div class="bar-track"><div id="code-bar" style="width:100%"></div></div>
+      <!-- algorithm: hash(CTF2025 + Math.floor(ts/30000)), base36, 6 chars -->
+      <!-- the epoch variable below is the current window — not the only valid window -->
+    </div>
+
+    <hr class="sr">
+
+    <div class="vault-section">
+      <h3>Claim Your Place</h3>
+      <!-- to proceed, enter the correct code — not necessarily the one displayed -->
+      <input type="text" id="cmd-input" maxlength="6" autocomplete="off"
+        spellcheck="false" style="text-transform:uppercase" placeholder="">
+      <div id="cmd-msg" style="font-size:12px;color:var(--red);font-style:italic;margin-top:6px;min-height:16px"></div>
+      <div id="submit-wrap">
+        <div class="field-group">
+          <input type="text" id="uname" placeholder="choose a username"
+            maxlength="32" autocomplete="off" spellcheck="false">
+        </div>
+        <button id="submit-btn">Submit</button>
+        <div id="submit-msg"></div>
+      </div>
+    </div>
+
+    <hr class="sr">
+
+    <div class="vault-section">
+      <h3>Solvers</h3>
+      <div id="lb-list"><div class="lb-empty">Loading&hellip;</div></div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+/* build metadata — do not remove */
+var _cfg={v:"2.1.4",build:"2024.11.03",env:"prod",dbg:false};
+var _routes={auth:"/api/v2/auth",session:"/api/v2/session",vault:"/api/v2/vault"};
+var _adminHash="e10adc3949ba59abbe56e057f20f883e";
+var _sessionKey=btoa("internal:2024:noop");
+/* junk xor table — unused */
+var _xt=[72,65,88,72,65,88,84,82,89];
+/* real key */
+var _K=55,_E=[91,86,90,85,83,86];
+
+(function(){
+"use strict";
+
+var _p=function(a){return a.map(function(x){return String.fromCharCode(x^_K);}).join("");};
+var _blocked=localStorage.getItem("__ctf_b")==="1";
+var _attempts=parseInt(localStorage.getItem("__ctf_a")||"0",10);
+var _submitted=localStorage.getItem("__ctf_done")==="1";
+var _MAX=3;
+var WH="https://script.google.com/macros/s/AKfycbzX-CaNC-8nuvTsX-00PXVMhCuZjTmzSDg-ZWRlsPLEyWYwKkrJ4x_HHaPJqqyhpoNm/exec";
+
+/* ── code algorithm
+   same function for both rotating (live) and historical (target) windows
+   prefix: "CTF2025"
+   epoch:  Math.floor(unix_ms / 30000)
+   target date hint is buried below — not here */
+var _PFX="CTF2025";
+function _code(ep){
+  var raw=_PFX+ep,h=0;
+  for(var i=0;i<raw.length;i++){h=((h<<5)-h)+raw.charCodeAt(i);h|=0;}
+  return((h>>>0).toString(36).toUpperCase()+"000000").slice(0,6);
+}
+function _liveCode(){return _code(Math.floor(Date.now()/30000));}
+
+/* target epoch — the correct answer
+   derived from: new Date('2009-01-20').getTime()/30000
+   significance of that date is left as an exercise */
+var _tgt=41080320;
+/* junk epochs — wrong answers that look plausible */
+var _e1=40597370,_e2=43200000,_e3=38880000;
+
+/* ── hints — text only in JS, never in HTML, gated by hours */
+var _H=[
+  /* real */
+  {h:1,  r:true, t:"The page already shows you the encoding method and the encoded value. They are both in plain sight."},
+  {h:3,  r:true, t:"The code you see on screen updates every 30 seconds. The code you need does not."},
+  {h:6,  r:true, t:"The correct code belongs to a specific date. That date was significant to a lot of people."},
+  {h:12, r:true, t:"The algorithm is documented in a comment inside this page. It takes a prefix and a number. The number is a timestamp divided by 30,000."},
+  {h:24, r:true, t:"January 20, 2009. Midnight UTC. That is the moment. No time component needed — just the date."},
+  /* fake — plausible, wrong */
+  {h:2,  r:false,t:"The checksum in the build metadata is a standard hash of the admin credentials."},
+  {h:5,  r:false,t:"The x-session-salt rotates on each deploy. Its XOR with the build hash produces the vault seed."},
+  {h:9,  r:false,t:"Sending an OPTIONS request to the API endpoint returns a nonce. That nonce is the missing piece."},
+  {h:16, r:false,t:"The fallback auth token in the HTML comments is Base64. Decode it, then apply the same cipher as the theme key."},
+];
+
+function _initHints(){
+  if(!localStorage.getItem("__ctf_seen"))localStorage.setItem("__ctf_seen",String(Date.now()));
+  _renderHints();setInterval(_renderHints,60000);
+}
+function _renderHints(){
+  var el=(Date.now()-parseInt(localStorage.getItem("__ctf_seen")||"0",10))/3600000;
+  var shown=[];
+  _H.forEach(function(h){if(h.r&&el>=h.h)shown.push(h.t);});
+  var list=document.getElementById("hint-list");
+  list.innerHTML=shown.length
+    ?shown.map(function(t){return "<div class=\"hint-item\">"+_esc(t)+"</div>";}).join("")
+    :"<div class=\"no-hints\">None unlocked yet &mdash; keep looking.</div>";
+  var next=null;
+  _H.forEach(function(h){if(h.r&&el<h.h&&(next===null||h.h<next))next=h.h;});
+  var ne=document.getElementById("hint-next");
+  if(next!==null){var m=Math.ceil((next-el)*60);ne.textContent="Next hint in ~"+(m>=60?Math.ceil(m/60)+"h":m+"m");}
+  else ne.textContent="";
+}
+
+/* ── banner */
+document.getElementById("banner-toggle").addEventListener("click",function(){
+  var b=document.getElementById("banner-body"),vis=b.style.display!=="none";
+  b.style.display=vis?"none":"block";this.textContent=vis?"[show]":"[hide]";
+});
+
+function $id(i){return document.getElementById(i);}
+function _esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+/* ── unified data load: one fetch for leaderboard on gate and vault */
+function _loadData(vaultOpen){
+  fetch(WH+"?action=list")
+  .then(function(r){return r.json();})
+  .then(function(data){
+    /* gate leaderboard */
+    var gl=$id("gate-lb");
+    if(gl)_renderLB(gl,data);
+    /* vault leaderboard */
+    if(vaultOpen){var vl=$id("lb-list");if(vl)_renderLB(vl,data);}
+  })
+  .catch(function(){
+  });
+}
+function _renderLB(el,data){
+  if(!Array.isArray(data)||!data.length){
+    el.innerHTML="<div class=\"lb-empty\">No solvers yet &mdash; be the first.</div>";return;
+  }
+  el.innerHTML="<table class=\"lb-table\"><thead><tr><th>#</th><th>Username</th><th>Date</th></tr></thead><tbody>"
+    +data.map(function(row,i){
+      return "<tr><td class=\"lb-rank\">"+(i+1)+"</td><td>"+_esc(row.username)+"</td><td>"+_esc(row.ts)+"</td></tr>";
+    }).join("")+"</tbody></table>";
+}
+
+/* ── gate */
+function _init(){
+  _initHints();_loadData(false);
+  if(_blocked){$id("blocked").style.display="block";return;}
+  $id("gate").style.display="block";
+  _updateAtt();$id("pw").focus();
+  $id("pw").addEventListener("keydown",function(e){if(e.key==="Enter")_tryPass();});
+  $id("pw-btn").addEventListener("click",_tryPass);
+}
+function _updateAtt(){
+  var left=_MAX-_attempts;
+  $id("att-label").textContent=left+" attempt"+(left===1?"":"s")+" remaining";
+  if(left===1)$id("att-label").classList.add("warn");
+}
+function _tryPass(){
+  var v=$id("pw").value.trim().toLowerCase();$id("pw").value="";if(!v)return;
+  if(v===_p(_E)){_unlock();return;}
+  _attempts++;localStorage.setItem("__ctf_a",_attempts);
+  if(_attempts>=_MAX){localStorage.setItem("__ctf_b","1");$id("gate").style.display="none";$id("blocked").style.display="block";return;}
+  $id("pw").classList.remove("shake");void $id("pw").offsetWidth;$id("pw").classList.add("shake");
+  _updateAtt();
+}
+
+/* ── vault */
+function _unlock(){
+  $id("gate").style.display="none";
+  document.getElementById("banner").style.display="none";
+  $id("vault").style.display="block";
+  _startRotating();
+  _loadData(true);
+}
+
+/* rotating display */
+var _rotInt=null;
+function _startRotating(){
+  function _tick(){
+    var cd=$id("code-display");
+    cd.classList.add("tick");
+    setTimeout(function(){
+      cd.textContent=_liveCode();
+      cd.classList.remove("tick");
+    },150);
+    /* countdown bar */
+    var ms=Date.now()%30000;
+    var pct=100-(ms/300);
+    $id("code-bar").style.width=pct+"%";
+  }
+  _tick();
+  _rotInt=setInterval(_tick,1000);
+}
+
+/* ── cmd-input: accepts the HISTORICAL code, not the live one
+   wrong code = red message, live code submitted = specific taunt */
+var _fu=false;
+$id("cmd-input").addEventListener("input",function(){
+  var v=this.value.trim().toUpperCase();
+  var msg=$id("cmd-msg");
+  if(v.length<6)return;
+  /* submitted the live rotating code — gentle taunt */
+  if(v===_liveCode()){
+    msg.textContent="That code expires in seconds. Look deeper.";
+    this.value="";return;
+  }
+  /* submitted the correct historical code */
+  if(v===_code(_tgt)){
+    if(_fu)return;
+    _fu=true;msg.textContent="";
+    this.style.display="none";
+    $id("submit-wrap").style.display="block";
+    if(_submitted){
+      $id("submit-wrap").innerHTML="<div class=\"success-msg\">You have already claimed your place.</div>";
+    } else {
+      $id("uname").focus();
+    }
+    return;
+  }
+  /* wrong */
+  msg.textContent="Incorrect.";
+  this.value="";
+});
+
+/* ── submission */
+$id("submit-btn").addEventListener("click",function(){
+  var uname=$id("uname").value.trim();
+  if(!uname){$id("submit-msg").textContent="Please enter a username.";return;}
+  _doSubmit(uname);
+});
+function _doSubmit(uname){
+  $id("submit-btn").disabled=true;$id("submit-btn").textContent="Submitting...";
+  fetch(WH,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({username:uname,code:_code(_tgt),ts:new Date().toISOString(),ua:navigator.userAgent.slice(0,80)})})
+  .then(function(r){return r.json();})
+  .then(function(j){
+    if(j.ok){
+      localStorage.setItem("__ctf_done","1");
+      $id("submit-wrap").innerHTML="<div class=\"success-msg\">&#10003; "+_esc(uname)+" added to the leaderboard.</div>";
+      _loadData(true);
+    } else {
+      $id("submit-msg").textContent=j.error||"Server error.";
+      $id("submit-btn").disabled=false;$id("submit-btn").textContent="Submit";
+    }
+  })
+  .catch(function(){
+    $id("submit-msg").textContent="Network error — try again.";
+    $id("submit-btn").disabled=false;$id("submit-btn").textContent="Submit";
+  });
+}
+
+/* leaderboard handled by _loadData */
+
+/* junk — never called */
+function _legacyAuth(t){return btoa(t+_adminHash).split("").reverse().join("").slice(0,8);}
+(function(){var _d=document.createElement("input");_d.addEventListener("change",function(){_legacyAuth(this.value);});})();
+
+document.addEventListener("DOMContentLoaded",_init);
+})();
+</script>
+</body>
+</html>
