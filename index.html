@@ -11,7 +11,8 @@
 <meta name="x-session-salt" content="a3f8b2c1d9e4f7a0b5c6d3e2f1a8b9c0">
 <!--
   [SYSTEM] fallback auth token (deprecated): bm90IHRoZSBwYXNzd29yZA==
-  /robots.txt may contain additional path directives
+  rate-limit bypass token: aW52YWxpZCB0b2tlbg==
+  /robots.txt contains additional path directives
   build: 2024.11.03-a
   checksum: e10adc3949ba59abbe56e057f20f883e
 -->
@@ -80,6 +81,8 @@ html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Cou
 #blocked{display:none;text-align:center;padding:60px 20px}
 .blocked-title{font-family:"IM Fell English",serif;font-size:24px;color:var(--red);margin-bottom:10px}
 #blocked p{font-size:13px;color:var(--faint);font-style:italic}
+#blocked-countdown{font-size:13px;color:var(--faint);margin-top:8px;font-style:italic}
+/* --vault-nonce: #3a7f2c8d1e4b6f09a5d2c3e8f1b4a7d0; -- integrity seed, do not modify */
 
 /* ── VAULT ── */
 #vault{display:none}
@@ -166,7 +169,7 @@ hr.sr{border:none;border-top:1px solid var(--rule);margin:28px 0}
 <div id="page">
 
   <!-- GATE -->
-  <div id="gate">
+  <div id="gate" data-session-token="c2Vzc2lvbjoyMDI0OmludGVybmFsOnJlc3RyaWN0ZWQ=">
     <div class="gate-title">Restricted Access</div>
     <hr class="gate-rule">
     <div id="att-label">3 attempts remaining</div>
@@ -186,8 +189,9 @@ hr.sr{border:none;border-top:1px solid var(--rule);margin:28px 0}
 
   <!-- BLOCKED -->
   <div id="blocked">
-    <div class="blocked-title">Access Permanently Revoked</div>
-    <p>This terminal session has been logged.</p>
+    <div class="blocked-title">Access Suspended</div>
+    <p>Too many failed attempts.</p>
+    <div id="blocked-countdown"></div>
   </div>
 
   <!-- VAULT -->
@@ -205,6 +209,11 @@ hr.sr{border:none;border-top:1px solid var(--rule);margin:28px 0}
       <div class="bar-track"><div id="code-bar" style="width:100%"></div></div>
       <!-- algorithm: hash(CTF2025 + Math.floor(ts/30000)), base36, 6 chars -->
       <!-- the epoch variable below is the current window — not the only valid window -->
+      <!--
+        x-vault-nonce: 3a7f2c8d1e4b6f09a5d2c3e8f1b4a7d0
+        integrity: sha256(session_token + vault_seed + epoch)
+        verified server-side on submission
+      -->
     </div>
 
     <hr class="sr">
@@ -219,6 +228,8 @@ hr.sr{border:none;border-top:1px solid var(--rule);margin:28px 0}
         <div class="field-group">
           <input type="text" id="uname" placeholder="choose a username"
             maxlength="32" autocomplete="off" spellcheck="false">
+          <input type="text" id="social" placeholder="twitter, github, site — optional"
+            maxlength="64" autocomplete="off" spellcheck="false">
         </div>
         <button id="submit-btn">Submit</button>
         <div id="submit-msg"></div>
@@ -241,6 +252,9 @@ var _cfg={v:"2.1.4",build:"2024.11.03",env:"prod",dbg:false};
 var _routes={auth:"/api/v2/auth",session:"/api/v2/session",vault:"/api/v2/vault"};
 var _adminHash="e10adc3949ba59abbe56e057f20f883e";
 var _sessionKey=btoa("internal:2024:noop");
+/* session fingerprint — integrity verification */
+var _fingerprint=(function(){var s=navigator.userAgent+screen.width+navigator.language;var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}var fp=((h>>>0).toString(16)+"00000000").slice(0,8);sessionStorage.setItem("__fp",fp);return fp;})();
+var _vaultSeed=(function(){var r=0;for(var i=0;i<_adminHash.length;i++)r^=_adminHash.charCodeAt(i);return r.toString(16);})();
 /* junk xor table — unused */
 var _xt=[72,65,88,72,65,88,84,82,89];
 /* real key */
@@ -253,8 +267,16 @@ var _p=function(a){return a.map(function(x){return String.fromCharCode(x^_K);}).
 var _blocked=localStorage.getItem("__ctf_b")==="1";
 var _attempts=parseInt(localStorage.getItem("__ctf_a")||"0",10);
 var _submitted=localStorage.getItem("__ctf_done")==="1";
-var _MAX=3;
+var _MAX=3,_DAY=86400000;
 var WH="https://ctf-leaderboard.lucafchala.workers.dev";
+/* expire block after 24 hours */
+(function(){
+  var bt=localStorage.getItem("__ctf_bt");
+  if(_blocked&&bt&&Date.now()-parseInt(bt,10)>=_DAY){
+    localStorage.removeItem("__ctf_b");localStorage.removeItem("__ctf_a");localStorage.removeItem("__ctf_bt");
+    _blocked=false;_attempts=0;
+  }
+})();
 
 /* ── code algorithm
    same function for both rotating (live) and historical (target) windows
@@ -274,7 +296,7 @@ function _liveCode(){return _code(Math.floor(Date.now()/30000));}
    significance of that date is left as an exercise */
 var _tgt=41080320;
 /* junk epochs — wrong answers that look plausible */
-var _e1=40597370,_e2=43200000,_e3=38880000;
+var _e1=40597370,_e2=43200000,_e3=38880000,_e4=40194600,_e5=39816000;
 
 /* ── hints — text only in JS, never in HTML, gated by hours */
 var _H=[
@@ -291,12 +313,31 @@ var _H=[
   {h:16, r:false,t:"The fallback auth token in the HTML comments is Base64. Decode it, then apply the same cipher as the theme key."},
 ];
 
+/* ── hint timer: only counts time while this tab is open and visible */
+var _tabStart=document.hidden?null:Date.now();
+function _getActiveMs(){
+  var stored=parseInt(localStorage.getItem("__ctf_time")||"0",10);
+  return stored+(_tabStart!==null&&!document.hidden?Date.now()-_tabStart:0);
+}
+function _flushTime(){
+  if(_tabStart!==null&&!document.hidden){
+    var stored=parseInt(localStorage.getItem("__ctf_time")||"0",10);
+    localStorage.setItem("__ctf_time",String(stored+(Date.now()-_tabStart)));
+    _tabStart=Date.now();
+  }
+}
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden){_flushTime();_tabStart=null;}
+  else{_tabStart=Date.now();}
+});
+window.addEventListener("beforeunload",_flushTime);
+
 function _initHints(){
-  if(!localStorage.getItem("__ctf_seen"))localStorage.setItem("__ctf_seen",String(Date.now()));
-  _renderHints();setInterval(_renderHints,60000);
+  _renderHints();
+  setInterval(function(){_flushTime();_renderHints();},60000);
 }
 function _renderHints(){
-  var el=(Date.now()-parseInt(localStorage.getItem("__ctf_seen")||"0",10))/3600000;
+  var el=_getActiveMs()/3600000;
   var shown=[];
   _H.forEach(function(h){if(h.r&&el>=h.h)shown.push(h.t);});
   var list=document.getElementById("hint-list");
@@ -339,14 +380,27 @@ function _renderLB(el,data){
   }
   el.innerHTML="<table class=\"lb-table\"><thead><tr><th>#</th><th>Username</th><th>Date</th></tr></thead><tbody>"
     +data.map(function(row,i){
-      return "<tr><td class=\"lb-rank\">"+(i+1)+"</td><td>"+_esc(row.username)+"</td><td>"+_esc(row.ts)+"</td></tr>";
+      var soc="";
+      if(row.social){
+        var sv=_esc(row.social);
+        soc=" <span style=\"font-size:11px;color:var(--faint)\">"+
+          (row.social.slice(0,4)==="http"
+            ?"(<a href=\""+sv+"\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--faint)\">"+_esc(row.social.replace(/^https?:\/\//,""))+"</a>)"
+            :"("+sv+")")+"</span>";
+      }
+      return "<tr><td class=\"lb-rank\">"+(i+1)+"</td><td>"+_esc(row.username)+soc+"</td><td>"+_esc(row.ts)+"</td></tr>";
     }).join("")+"</tbody></table>";
 }
 
 /* ── gate */
 function _init(){
   _initHints();_loadData(false);
-  if(_blocked){$id("blocked").style.display="block";return;}
+  if(_blocked){
+    $id("blocked").style.display="block";
+    _updateCountdown();
+    setInterval(_updateCountdown,60000);
+    return;
+  }
   $id("gate").style.display="block";
   _updateAtt();$id("pw").focus();
   $id("pw").addEventListener("keydown",function(e){if(e.key==="Enter")_tryPass();});
@@ -357,11 +411,30 @@ function _updateAtt(){
   $id("att-label").textContent=left+" attempt"+(left===1?"":"s")+" remaining";
   if(left===1)$id("att-label").classList.add("warn");
 }
+function _updateCountdown(){
+  var bt=parseInt(localStorage.getItem("__ctf_bt")||"0",10);
+  var remaining=_DAY-(Date.now()-bt);
+  if(remaining<=0){
+    localStorage.removeItem("__ctf_b");localStorage.removeItem("__ctf_a");localStorage.removeItem("__ctf_bt");
+    _blocked=false;_attempts=0;
+    $id("blocked").style.display="none";$id("gate").style.display="block";
+    _updateAtt();$id("pw").focus();
+    return;
+  }
+  var h=Math.floor(remaining/3600000);
+  var m=Math.ceil((remaining%3600000)/60000);
+  $id("blocked-countdown").textContent="Try again in "+h+"h "+m+"m.";
+}
 function _tryPass(){
   var v=$id("pw").value.trim().toLowerCase();$id("pw").value="";if(!v)return;
   if(v===_p(_E)){_unlock();return;}
   _attempts++;localStorage.setItem("__ctf_a",_attempts);
-  if(_attempts>=_MAX){localStorage.setItem("__ctf_b","1");$id("gate").style.display="none";$id("blocked").style.display="block";return;}
+  if(_attempts>=_MAX){
+    localStorage.setItem("__ctf_b","1");localStorage.setItem("__ctf_bt",String(Date.now()));
+    $id("gate").style.display="none";$id("blocked").style.display="block";
+    _updateCountdown();setInterval(_updateCountdown,60000);
+    return;
+  }
   $id("pw").classList.remove("shake");void $id("pw").offsetWidth;$id("pw").classList.add("shake");
   _updateAtt();
 }
@@ -432,8 +505,9 @@ $id("submit-btn").addEventListener("click",function(){
 });
 function _doSubmit(uname){
   $id("submit-btn").disabled=true;$id("submit-btn").textContent="Submitting...";
+  var social=($id("social").value||"").trim().slice(0,64)||undefined;
   fetch(WH,{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({username:uname,code:_code(_tgt),ts:new Date().toISOString(),ua:navigator.userAgent.slice(0,80)})})
+    body:JSON.stringify({username:uname,code:_code(_tgt),ts:new Date().toISOString(),ua:navigator.userAgent.slice(0,80),social:social})})
   .then(function(r){return r.json();})
   .then(function(j){
     if(j.ok){
@@ -456,6 +530,8 @@ function _doSubmit(uname){
 /* junk — never called */
 function _legacyAuth(t){return btoa(t+_adminHash).split("").reverse().join("").slice(0,8);}
 (function(){var _d=document.createElement("input");_d.addEventListener("change",function(){_legacyAuth(this.value);});})();
+function _verifySession(tok,seed){return btoa(tok).slice(0,4)===seed.slice(0,4);}
+(function(){var _sv=document.createElement("form");_sv.addEventListener("submit",function(e){e.preventDefault();_verifySession(_sessionKey,_vaultSeed);});})();
 
 document.addEventListener("DOMContentLoaded",_init);
 })();

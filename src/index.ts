@@ -13,6 +13,7 @@ interface Env {
 interface LeaderboardEntry {
   username: string;
   ts: string;
+  social?: string;
 }
 
 function json(data: unknown, status = 200): Response {
@@ -41,7 +42,7 @@ export default {
 
     if (request.method === 'POST') {
       try {
-        const { username, code, ts } = await request.json() as Partial<LeaderboardEntry & { code: string }>;
+        const { username, code, ts, social } = await request.json() as Partial<LeaderboardEntry & { code: string }>;
 
         if (!username || typeof username !== 'string') {
           return json({ ok: false, error: 'Username required.' });
@@ -58,7 +59,9 @@ export default {
           return json({ ok: false, error: 'Username already taken.' });
         }
 
-        entries.push({ username: trimmed, ts: ts || new Date().toISOString() });
+        const entry: LeaderboardEntry = { username: trimmed, ts: ts || new Date().toISOString() };
+        if (social && typeof social === 'string') entry.social = social.trim().slice(0, 64) || undefined;
+        entries.push(entry);
         await env.KV.put('entries', JSON.stringify(entries));
         return json({ ok: true });
       } catch {
