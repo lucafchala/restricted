@@ -73,6 +73,22 @@ export default {
       }
     }
 
+    // Lightweight Turnstile preflight — verifies the token from the code step
+    if (request.method === 'POST' && url.pathname === '/api/verify') {
+      const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+      const allowed = await checkRateLimit(env.KV, ip, 'verify', 10, 3600);
+      if (!allowed) return json({ ok: false, error: 'Too many requests.' }, 429);
+      let token: string | undefined;
+      try {
+        const body = await request.json() as { token?: string };
+        token = body.token;
+      } catch {
+        return json({ ok: false, error: 'Invalid request.' }, 400);
+      }
+      const ok = await verifyTurnstile(token, env);
+      return json({ ok });
+    }
+
     if (request.method === 'POST') {
       const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
       const allowed = await checkRateLimit(env.KV, ip, 'submit', 5, 3600);
