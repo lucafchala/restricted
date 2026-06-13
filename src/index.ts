@@ -8,7 +8,6 @@ const CORS: HeadersInit = {
 
 interface Env {
   KV: KVNamespace;
-  TURNSTILE_SECRET_KEY?: string;
 }
 
 interface LeaderboardEntry {
@@ -39,22 +38,6 @@ async function checkRateLimit(
   return true;
 }
 
-async function verifyTurnstile(token: string | undefined, env: Env): Promise<boolean> {
-  const secret = env.TURNSTILE_SECRET_KEY;
-  if (!secret) return true; // graceful degradation if secret not configured
-  if (!token) return false;
-  try {
-    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret, response: token }),
-    });
-    const data = await res.json() as { success: boolean };
-    return data.success === true;
-  } catch {
-    return false;
-  }
-}
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -73,22 +56,6 @@ export default {
       }
     }
 
-    // Lightweight Turnstile preflight — verifies the token from the code step
-    if (request.method === 'POST' && url.pathname === '/api/verify') {
-      const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-      const allowed = await checkRateLimit(env.KV, ip, 'verify', 10, 3600);
-      if (!allowed) return json({ ok: false, error: 'Too many requests.' }, 429);
-      let token: string | undefined;
-      try {
-        const body = await request.json() as { token?: string };
-        token = body.token;
-      } catch {
-        return json({ ok: false, error: 'Invalid request.' }, 400);
-      }
-      const ok = await verifyTurnstile(token, env);
-      return json({ ok });
-    }
-
     if (request.method === 'POST') {
       const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
       const allowed = await checkRateLimit(env.KV, ip, 'submit', 5, 3600);
@@ -97,13 +64,8 @@ export default {
       }
 
       try {
-        const body = await request.json() as Partial<LeaderboardEntry & { code: string; turnstileToken: string }>;
-        const { username, code, ts, social, turnstileToken } = body;
-
-        const tsOk = await verifyTurnstile(turnstileToken, env);
-        if (!tsOk) {
-          return json({ ok: false, error: 'Security check failed. Reload and try again.' }, 403);
-        }
+        const body = await request.json() as Partial<LeaderboardEntry & { code: string }>;
+        const { username, code, ts, social } = body;
 
         if (!username || typeof username !== 'string') {
           return json({ ok: false, error: 'Username required.' });
