@@ -29,7 +29,6 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -230,10 +229,7 @@ hr.sr{border:none;border-top:1px solid var(--rule);margin:28px 0}
       <!-- to proceed, enter the correct code — not necessarily the one displayed -->
       <input type="text" id="cmd-input" maxlength="6" autocomplete="off"
         spellcheck="false" style="text-transform:uppercase" placeholder="">
-      <!-- Turnstile widget shown after correct code is entered; token verified before submit form is revealed -->
-      <div id="ts-code-wrap">
-        <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY" data-callback="onTurnstileCode" data-theme="light"></div>
-      </div>
+
       <div id="cmd-msg" style="font-size:12px;color:var(--red);font-style:italic;margin-top:6px;min-height:16px"></div>
       <div id="submit-wrap">
         <div class="field-group">
@@ -242,9 +238,7 @@ hr.sr{border:none;border-top:1px solid var(--rule);margin:28px 0}
           <input type="text" id="social" placeholder="twitter, github, site — optional"
             maxlength="64" autocomplete="off" spellcheck="false">
         </div>
-        <!-- Turnstile widget for the final submission -->
-        <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY" data-callback="onTurnstileSubmit" data-theme="light" style="margin-bottom:10px"></div>
-        <button id="submit-btn" disabled>Submit</button>
+        <button id="submit-btn">Submit</button>
         <div id="submit-msg"></div>
       </div>
     </div>
@@ -274,18 +268,6 @@ var _xt=[72,65,88,72,65,88,84,82,89];
 /* real key */
 var _K=55,_E=[91,86,90,85,83,86];
 
-/* Turnstile tokens — populated by widget callbacks */
-var _tsCodeToken=null;   // from the hidden-field widget
-var _tsSubmitToken=null; // from the submit-form widget
-
-function onTurnstileCode(token) {
-  _tsCodeToken=token;
-  _verifyCodeToken();
-}
-function onTurnstileSubmit(token) {
-  _tsSubmitToken=token;
-  document.getElementById('submit-btn').disabled=false;
-}
 
 (function(){
 "use strict";
@@ -505,11 +487,8 @@ function _startRotating(){
   _rotInt=setInterval(_tick,1000);
 }
 
-/* ── cmd-input: accepts the HISTORICAL code, not the live one
-   correct code → show Turnstile widget #1 → on token → verify server-side → reveal submit form
-   wrong code = red message, live code submitted = specific taunt */
+/* ── cmd-input: accepts the HISTORICAL code, not the live one */
 var _fu=false;
-var _pendingCorrectCode=false;
 $id("cmd-input").addEventListener("input",function(){
   var v=this.value.trim().toUpperCase();
   var msg=$id("cmd-msg");
@@ -522,11 +501,15 @@ $id("cmd-input").addEventListener("input",function(){
   /* submitted the correct historical code */
   if(v===_code(_tgt)){
     if(_fu)return;
-    _pendingCorrectCode=true;
+    _fu=true;
     msg.textContent="";
     this.style.display="none";
-    /* reveal the Turnstile widget for the code step */
-    $id("ts-code-wrap").style.display="block";
+    $id("submit-wrap").style.display="block";
+    if(_submitted){
+      $id("submit-wrap").innerHTML="<div class=\"success-msg\">You have already claimed your place.</div>";
+    } else {
+      $id("uname").focus();
+    }
     return;
   }
   /* wrong */
@@ -534,51 +517,17 @@ $id("cmd-input").addEventListener("input",function(){
   this.value="";
 });
 
-/* called by onTurnstileCode once the first widget resolves */
-function _verifyCodeToken(){
-  if(!_pendingCorrectCode||_fu)return;
-  var token=_tsCodeToken;
-  if(!token){$id("cmd-msg").textContent="Security check failed. Try again.";return;}
-  fetch(WH+"/api/verify",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({token:token})
-  })
-  .then(function(r){return r.json();})
-  .then(function(j){
-    if(j.ok){
-      _fu=true;
-      $id("ts-code-wrap").style.display="none";
-      $id("cmd-msg").textContent="";
-      $id("submit-wrap").style.display="block";
-      if(_submitted){
-        $id("submit-wrap").innerHTML="<div class=\"success-msg\">You have already claimed your place.</div>";
-      } else {
-        $id("uname").focus();
-      }
-    } else {
-      $id("cmd-msg").textContent="Security check failed. Reload and try again.";
-      _tsCodeToken=null;
-    }
-  })
-  .catch(function(){
-    $id("cmd-msg").textContent="Network error — try again.";
-    _tsCodeToken=null;
-  });
-}
-
 /* ── submission */
 $id("submit-btn").addEventListener("click",function(){
   var uname=$id("uname").value.trim();
   if(!uname){$id("submit-msg").textContent="Please enter a username.";return;}
-  if(!_tsSubmitToken){$id("submit-msg").textContent="Security check not ready — please wait.";return;}
   _doSubmit(uname);
 });
 function _doSubmit(uname){
   $id("submit-btn").disabled=true;$id("submit-btn").textContent="Submitting...";
   var social=($id("social").value||"").trim().slice(0,64)||undefined;
   fetch(WH,{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({username:uname,code:_code(_tgt),ts:new Date().toISOString(),ua:navigator.userAgent.slice(0,80),social:social,turnstileToken:_tsSubmitToken})})
+    body:JSON.stringify({username:uname,code:_code(_tgt),ts:new Date().toISOString(),ua:navigator.userAgent.slice(0,80),social:social})})
   .then(function(r){return r.json();})
   .then(function(j){
     if(j.ok){
@@ -588,9 +537,6 @@ function _doSubmit(uname){
     } else {
       $id("submit-msg").textContent=j.error||"Server error.";
       $id("submit-btn").disabled=false;$id("submit-btn").textContent="Submit";
-      /* reset the submit widget token so a fresh challenge is rendered */
-      _tsSubmitToken=null;
-      if(window.turnstile)window.turnstile.reset();
     }
   })
   .catch(function(){
