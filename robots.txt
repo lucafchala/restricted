@@ -1,4 +1,7 @@
+# robots.txt — restricted.lucafchala.com
+# Open access: a public CTF challenge with no sensitive paths to hide.
+# The leaderboard API runs on a separate Cloudflare Worker (ctf-leaderboard.lucafchala.workers.dev),
+# not on this static site. All crawlers and AI agents are welcome.
+
 User-agent: *
-Disallow: /vault
-Disallow: /api/
-Disallow: /session
+Allow: /
